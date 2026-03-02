@@ -102,6 +102,11 @@ def main():
             optimizer.step()
             total_loss += loss.item()
         logger.info(f"Epoch {epoch+1}, loss {total_loss/len(dataloader):.4f}")
+    # save checkpoints
+    os.makedirs('checkpoints', exist_ok=True)
+    torch.save(model.state_dict(), 'checkpoints/coca_model.pth')
+    torch.save(classifier.state_dict(), 'checkpoints/classifier.pth')
+    logger.info("Saved model and classifier checkpoints to checkpoints/")
 
     # inference helper
     def predict_image(path):
