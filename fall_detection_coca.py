@@ -33,11 +33,23 @@ class FallImageDataset(Dataset):
 
 
 def main():
+    # parse command-line arguments
+    import argparse
+    parser = argparse.ArgumentParser(description="Train/evaluate fall detection using CoCa model")
+    parser.add_argument("--root_dir", type=str, default="images",
+                        help="dataset root with 'fall' and 'nofall' subfolders")
+    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--epochs", type=int, default=2)
+    parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--pred_image", type=str, default=None,
+                        help="path to a single image for prediction and exit")
+    args = parser.parse_args()
+
     # configuration
-    root_dir = 'images'  # dataset path with subfolders 'fall' and 'nofall'
-    batch_size = 16
-    epochs = 2
-    lr = 1e-4
+    root_dir = args.root_dir  # dataset path with subfolders 'fall' and 'nofall'
+    batch_size = args.batch_size
+    epochs = args.epochs
+    lr = args.lr
 
     # prepare transforms and dataset
     transform = T.Compose([
