@@ -2,6 +2,7 @@
 
 import os
 from PIL import Image
+import logging
 
 import torch
 import torch.nn as nn
@@ -9,6 +10,10 @@ import torchvision.transforms as T
 from torch.utils.data import Dataset, DataLoader
 
 from transformers import CoCaProcessor, CoCaModel
+
+# configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
+logger = logging.getLogger(__name__)
 
 # dataset loader
 class FallImageDataset(Dataset):
@@ -58,7 +63,7 @@ def main():
     ])
     dataset = FallImageDataset(root_dir, transform=transform)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    print("Dataset size:", len(dataset))
+    logger.info(f"Dataset size: {len(dataset)}")
 
     # initialize CoCa model and classifier
     processor = CoCaProcessor.from_pretrained("openai/coca-small")
@@ -79,6 +84,7 @@ def main():
 
     optimizer = torch.optim.Adam(classifier.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
+    logger.info(f"Using device: {device}")
 
     for epoch in range(epochs):
         classifier.train()
@@ -95,7 +101,7 @@ def main():
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
-        print(f"Epoch {epoch+1}, loss {total_loss/len(dataloader):.4f}")
+        logger.info(f"Epoch {epoch+1}, loss {total_loss/len(dataloader):.4f}")
 
     # inference helper
     def predict_image(path):
@@ -110,7 +116,7 @@ def main():
     # example usage
     sample_path = os.path.join(root_dir, 'fall', 'example1.jpg')
     if os.path.exists(sample_path):
-        print('Prediction for', sample_path, ':', predict_image(sample_path))
+        logger.info(f"Prediction for {sample_path}: {predict_image(sample_path)}")
 
 if __name__ == '__main__':
     main()
