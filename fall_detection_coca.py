@@ -102,6 +102,22 @@ def main():
             optimizer.step()
             total_loss += loss.item()
         logger.info(f"Epoch {epoch+1}, loss {total_loss/len(dataloader):.4f}")
+    # evaluate on training set (simple accuracy)
+    classifier.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for imgs, labels in dataloader:
+            imgs = imgs.to(device)
+            labels = labels.to(device)
+            emb = model.vision_model(pixel_values=imgs).pooler_output
+            logits = classifier(emb)
+            preds = logits.argmax(dim=-1)
+            correct += (preds == labels).sum().item()
+            total += labels.size(0)
+    accuracy = correct / total if total>0 else 0
+    logger.info(f"Training accuracy: {accuracy:.4f} ({correct}/{total})")
+
     # save checkpoints
     os.makedirs('checkpoints', exist_ok=True)
     torch.save(model.state_dict(), 'checkpoints/coca_model.pth')
